@@ -12,19 +12,18 @@
 
 import os
 import sys
-import sphinx_rtd_theme
 
-ROOT = os.path.abspath(os.path.join("..", ".."))
-sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.abspath(".."))
+import sphinx_rtd_theme  # noqa
 import skcosmo  # noqa
 
 # -- Project information -----------------------------------------------------
 
 # The master toctree document.
-master_doc = "index"
+master_doc = "source/index"
 
 project = "sklearn-COSMO"
-author = ", ".join(open(os.path.join(ROOT, "contributors.txt")))
+author = ", ".join(open(os.path.join(os.path.abspath(".."), "contributors.txt")))
 copyright = "2020, " + author
 
 # The full version, including alpha/beta/rc tags
