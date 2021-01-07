@@ -102,7 +102,7 @@ class PCovRSpaceTest(PCovRBaseTest):
         pcovr = self.model(mixing=0.5, n_components=2, tol=1e-12)
         pcovr.fit(self.X, self.Y)
 
-        self.assertTrue(pcovr.space == "feature")
+        self.assertTrue(pcovr.space_ == "feature")
 
     def test_select_structure_space(self):
         """
@@ -114,7 +114,7 @@ class PCovRSpaceTest(PCovRBaseTest):
         n_structures = self.X.shape[1] - 1
         pcovr.fit(self.X[:n_structures], self.Y[:n_structures])
 
-        self.assertTrue(pcovr.space == "structure")
+        self.assertTrue(pcovr.space_ == "structure")
 
     def test_bad_space(self):
         """
@@ -133,7 +133,7 @@ class PCovRSpaceTest(PCovRBaseTest):
         pcovr = self.model(mixing=0.5, n_components=2, tol=1e-12, space="structure")
         pcovr.fit(self.X, self.Y)
 
-        self.assertTrue(pcovr.space == "structure")
+        self.assertTrue(pcovr.space_ == "structure")
 
 
 class PCovRInfrastructureTest(PCovRBaseTest):
