@@ -49,6 +49,7 @@ using the eigendecomposition of a modified covariance matrix
     .. automethod:: transform
     .. automethod:: predict
     .. automethod:: inverse_transform
+    .. automethod:: score
 
 .. _PCovR_dist-api:
 

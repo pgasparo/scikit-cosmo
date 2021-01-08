@@ -6,10 +6,6 @@ from sklearn import exceptions
 from sklearn.utils.validation import check_X_y
 
 
-def rel_error(A, B):
-    return np.linalg.norm(A - B) ** 2.0 / np.linalg.norm(A) ** 2.0
-
-
 class PCovRBaseTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,12 +34,11 @@ class PCovRErrorTest(PCovRBaseTest):
             pcovr = self.model(mixing=mixing, n_components=2, tol=1e-12)
             pcovr.fit(self.X, self.Y)
 
-            Yp = pcovr.predict(self.X)
-            error = rel_error(self.Y, Yp)
+            _, error = pcovr.score(self.X, self.Y)
 
             with self.subTest(error=error):
                 self.assertFalse(np.isnan(error))
-            with self.subTest(error=error, alpha=mixing):
+            with self.subTest(error=error, alpha=round(mixing, 4)):
                 self.assertGreaterEqual(error, prev_error - self.error_tol)
 
             prev_error = error
@@ -61,12 +56,12 @@ class PCovRErrorTest(PCovRBaseTest):
             pcovr = self.model(mixing=mixing, n_components=2, tol=1e-12)
             pcovr.fit(self.X, self.Y)
 
-            Yp = pcovr.predict(T=pcovr.transform(self.X))
-            error = rel_error(self.Y, Yp)
+            T = pcovr.transform(self.X)
+            _, error = pcovr.score(self.X, self.Y, T=T)
 
             with self.subTest(error=error):
                 self.assertFalse(np.isnan(error))
-            with self.subTest(error=error, alpha=mixing):
+            with self.subTest(error=error, alpha=round(mixing, 4)):
                 self.assertGreaterEqual(error, prev_error - self.error_tol)
 
             prev_error = error
@@ -83,11 +78,11 @@ class PCovRErrorTest(PCovRBaseTest):
             pcovr = self.model(mixing=mixing, n_components=2, tol=1e-12)
             pcovr.fit(self.X, self.Y)
 
-            error = rel_error(self.X, pcovr.inverse_transform(pcovr.transform(self.X)))
+            error, _ = pcovr.score(self.X, self.Y)
 
             with self.subTest(error=error):
                 self.assertFalse(np.isnan(error))
-            with self.subTest(error=error, alpha=mixing):
+            with self.subTest(error=error, alpha=round(mixing, 4)):
                 self.assertLessEqual(error, prev_error + self.error_tol)
 
             prev_error = error

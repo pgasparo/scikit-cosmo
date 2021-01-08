@@ -484,6 +484,48 @@ class PCovR(_BasePCA, LinearModel):
 
         return super().transform(X)
 
+    def score(self, X, Y, T=None):
+        """Return the normalized, squared reconstruction error for X and Y,
+        defined as:
+
+        .. math::
+
+            \\ell_{X} = \\frac{\\lVert \\mathbf{X} - \\mathbf{T}\\mathbf{P}_{TX} \\rVert ^ 2}{\\lVert \\mathbf{X}\\rVert ^ 2}
+
+        and
+
+        .. math::
+
+            \\ell_{Y} = \\frac{\\lVert \\mathbf{Y} - \\mathbf{T}\\mathbf{P}_{TY} \\rVert ^ 2}{\\lVert \\mathbf{Y}\\rVert ^ 2}
+
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+            The data.
+
+        Y : array-like of shape (n_samples, n_properties)
+            The target.
+
+        Returns
+        -------
+        lx : float
+             Loss in reconstructing X from the latent-space projection T
+        ly : float
+             Loss in predicting Y from the latent-space projection T
+        """
+
+        if T is None:
+            T = self.transform(X)
+
+        x = self.inverse_transform(T)
+        y = self.predict(T=T)
+
+        return (
+            np.linalg.norm(X - x) ** 2.0 / np.linalg.norm(X) ** 2.0,
+            np.linalg.norm(Y - y) ** 2.0 / np.linalg.norm(Y) ** 2.0,
+        )
+
     def _compute_Yhat(self, X, Y, Yhat=None, W=None):
         """
         Method for computing the approximation of Y to fit the PCovR
