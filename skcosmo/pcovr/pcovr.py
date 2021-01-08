@@ -199,7 +199,7 @@ class PCovR(_BasePCA, LinearModel):
     >>> X = np.array([[-1, 1, -3, 1], [1, -2, 1, 2], [-2, 0, -2, -2], [1, 0, 2, -1]])
     >>> Y = np.array([[ 0, -5], [-1, 1], [1, -5], [-3, 2]])
     >>> pcovr = PCovR(mixing=0.1, n_components=2)
-    >>> pcovr.fit(X)
+    >>> pcovr.fit(X, Y)
     PCovR(lr_args=None, mixing=0.1, n_components=2, space=None, tol=None)
     >>> T = pcovr.transform(X)
         [[-2.48017109 -1.54378072]
