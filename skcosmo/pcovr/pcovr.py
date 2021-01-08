@@ -8,6 +8,7 @@ from sklearn.utils.validation import check_X_y, check_is_fitted
 from sklearn.utils import check_array
 from sklearn.decomposition._base import _BasePCA
 from sklearn.linear_model._base import LinearModel
+from sklearn.metrics.pairwise import pairwise_kernels
 
 from skcosmo.utils import eig_solver
 
@@ -21,10 +22,10 @@ def pcovr_covariance(mixing, X, Y, rcond=1e-12, return_isqrt=False):
         \\mathbf{\\tilde{C}} = \\alpha \\mathbf{X}^T \\mathbf{X} +
         (1 - \\alpha) \\left(\\left(\\mathbf{X}^T
         \\mathbf{X}\\right)^{-\\frac{1}{2}} \\mathbf{X}^T
-        \\mathbf{\\hat{Y}}\\mathbf{\\hat{Y}}^T \\mathbf{X} \\left(\\mathbf{X}^T
+        \\mathbf{Y}\\mathbf{Y}^T \\mathbf{X} \\left(\\mathbf{X}^T
         \\mathbf{X}\\right)^{-\\frac{1}{2}}\\right)
 
-    where :math:`\\mathbf{\\hat{Y}}`` are the properties obtained by linear regression.
+    where :math:`\\mathbf{Y}`` are the target properties.
 
     :param mixing: mixing parameter,
                    as described in PCovR as :math:`{\\alpha}`, defaults to 1
@@ -40,6 +41,12 @@ def pcovr_covariance(mixing, X, Y, rcond=1e-12, return_isqrt=False):
                       defaults to 1E-12
     :type rcond: float
 
+    :param return_isqrt: whether to also return the inverse square root of the
+                         covariance matrix. This is primarily used within PCovR,
+                         where recomputing the square root of the covariance
+                         matrix would require additional, potentially costly,
+                         computations.
+    :type return_isqrt: boolean, default=False
     """
 
     C = np.zeros((X.shape[1], X.shape[1]), dtype=np.float64)
@@ -52,11 +59,11 @@ def pcovr_covariance(mixing, X, Y, rcond=1e-12, return_isqrt=False):
         C_isqrt = np.real(scipy.linalg.sqrtm(C_inv))
 
         # parentheses speed up calculation greatly
-        Y_hat = C_isqrt @ (X.T @ Y)
-        Y_hat = Y_hat.reshape((C.shape[0], -1))
-        Y_hat = np.real(Y_hat)
+        CY = C_isqrt @ (X.T @ Y)
+        CY = CY.reshape((C.shape[0], -1))
+        CY = np.real(CY)
 
-        C += (1 - mixing) * Y_hat @ Y_hat.T
+        C += (1 - mixing) * CY @ CY.T
 
     if mixing > 0:
         C += (mixing) * cov
@@ -67,14 +74,21 @@ def pcovr_covariance(mixing, X, Y, rcond=1e-12, return_isqrt=False):
         return C
 
 
-def pcovr_kernel(mixing, X, Y):
+def pcovr_kernel(mixing, X, Y, **kernel_params):
     """
     Creates the PCovR modified kernel distances
 
     .. math::
 
+        \\mathbf{\\tilde{K}} = \\alpha \\mathbf{K} +
+        (1 - \\alpha) \\mathbf{Y}\\mathbf{Y}^T
+
+    the default kernel is the linear kernel, such that:
+
+    .. math::
+
         \\mathbf{\\tilde{K}} = \\alpha \\mathbf{X} \\mathbf{X}^T +
-        (1 - \\alpha) \\mathbf{\\hat{Y}}\\mathbf{\\hat{Y}}^T
+        (1 - \\alpha) \\mathbf{Y}\\mathbf{Y}^T
 
     :param mixing: mixing parameter,
                    as described in PCovR as :math:`{\\alpha}`, defaults to 1
@@ -86,13 +100,22 @@ def pcovr_kernel(mixing, X, Y):
     :param Y: array to include in biased selection when mixing < 1
     :type Y: array of shape (n x p)
 
+    :param kernel_params: dictionary of arguments to pass to pairwise_kernels
+                         if none are specified, assumes that the kernel is linear
+    :type kernel_params: dictionary, optional
+
     """
 
     K = np.zeros((X.shape[0], X.shape[0]))
     if mixing < 1:
         K += (1 - mixing) * Y @ Y.T
     if mixing > 0:
-        K += (mixing) * X @ X.T
+        if "kernel" not in kernel_params:
+            K += (mixing) * X @ X.T
+        elif kernel_params.get("kernel") != "precomputed":
+            K += (mixing) * pairwise_kernels(X, **kernel_params)
+        else:
+            K += (mixing) * X
 
     return K
 
@@ -196,8 +219,12 @@ class PCovR(_BasePCA, LinearModel):
     --------
     >>> import numpy as np
     >>> from skcosmo.pcovr import PCovR
+    >>>
     >>> X = np.array([[-1, 1, -3, 1], [1, -2, 1, 2], [-2, 0, -2, -2], [1, 0, 2, -1]])
+    >>> X = SFS().fit_transform(X)
     >>> Y = np.array([[ 0, -5], [-1, 1], [1, -5], [-3, 2]])
+    >>> Y = SFS(column_wise=True).fit_transform(Y)
+    >>>
     >>> pcovr = PCovR(mixing=0.1, n_components=2)
     >>> pcovr.fit(X, Y)
     PCovR(lr_args=None, mixing=0.1, n_components=2, space=None, tol=None)
