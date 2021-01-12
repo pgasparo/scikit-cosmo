@@ -164,5 +164,36 @@ class PCovRInfrastructureTest(PCovRBaseTest):
         self.assertTrue(T.shape[-1] == n_components)
 
 
+class PCovRMiscTest(PCovRBaseTest):
+    def test_compute_W(self):
+        model = self.model(mixing=0.5)
+        model.estimator_.fit(self.X, self.Y)
+        Yhat = model.estimator_.predict(self.X)
+        W = np.linalg.lstsq(self.X, self.Y, rcond=model.regularization_)[0]
+
+        _, w = model._compute_Yhat(self.X, self.Y, Yhat)
+        w = w.reshape(self.X.shape[1])
+
+        self.assertLessEqual(np.max(np.abs(W - w)), self.error_tol)
+
+    def test_compute_Yhat(self):
+        model = self.model(mixing=0.5)
+
+        W = np.linalg.lstsq(self.X, self.Y, rcond=model.regularization_)[0]
+
+        yhat, _ = model._compute_Yhat(self.X, self.Y)
+        yhat = yhat.reshape(self.X.shape[0])
+        self.assertLessEqual(np.max(np.abs((self.X @ W) - yhat)), self.error_tol)
+
+    def test_compute_YhatW(self):
+        model = self.model(mixing=0.5)
+        model.estimator_.fit(self.X, self.Y)
+        Yhat = model.estimator_.predict(self.X).reshape(self.X.shape[0])
+
+        yhat, _ = model._compute_Yhat(self.X, self.Y)
+        yhat = yhat.reshape(self.X.shape[0])
+        self.assertLessEqual(np.max(np.abs(Yhat - yhat)), self.error_tol)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
