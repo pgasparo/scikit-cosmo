@@ -68,13 +68,13 @@ def pcovr_covariance(mixing, X, Y, rcond=1e-12, return_isqrt=False):
 
 
 def pcovr_kernel(mixing, X, Y):
-    """
+   r """
     Creates the PCovR modified kernel distances
 
     .. math::
 
-        \\mathbf{\\tilde{K}} = \\alpha \\mathbf{X} \\mathbf{X}^T +
-        (1 - \\alpha) \\mathbf{\\hat{Y}}\\mathbf{\\hat{Y}}^T
+        \mathbf{\tilde{K}} = \alpha \mathbf{X} \mathbf{X}^T +
+        (1 - \alpha) \mathbf{\hat{Y}}\mathbf{\hat{Y}}^T
 
     :param mixing: mixing parameter,
                    as described in PCovR as :math:`{\\alpha}`, defaults to 1
