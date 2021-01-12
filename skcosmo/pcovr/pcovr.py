@@ -13,24 +13,24 @@ from skcosmo.utils import eig_solver
 
 
 def pcovr_covariance(mixing, X, Y, rcond=1e-12, return_isqrt=False):
-    """
+    r"""
     Creates the PCovR modified covariance
 
     .. math::
 
-        \\mathbf{\\tilde{C}} = \\alpha \\mathbf{X}^T \\mathbf{X} +
-        (1 - \\alpha) \\left(\\left(\\mathbf{X}^T
-        \\mathbf{X}\\right)^{-\\frac{1}{2}} \\mathbf{X}^T
-        \\mathbf{\\hat{Y}}\\mathbf{\\hat{Y}}^T \\mathbf{X} \\left(\\mathbf{X}^T
-        \\mathbf{X}\\right)^{-\\frac{1}{2}}\\right)
+        \mathbf{\tilde{C}} = \alpha \mathbf{X}^T \mathbf{X} +
+        (1 - \alpha) \left(\left(\mathbf{X}^T
+        \mathbf{X}\right)^{-\frac{1}{2}} \mathbf{X}^T
+        \mathbf{\hat{Y}}\mathbf{\hat{Y}}^T \mathbf{X} \left(\mathbf{X}^T
+        \mathbf{X}\right)^{-\frac{1}{2}}\right)
 
-    where :math:`\\mathbf{\\hat{Y}}`` are the properties obtained by linear regression.
+    where :math:`\mathbf{\hat{Y}}`` are the properties obtained by linear regression.
 
     :param mixing: mixing parameter,
-                   as described in PCovR as :math:`{\\alpha}`, defaults to 1
+                   as described in PCovR as :math:`{\alpha}`, defaults to 1
     :type mixing: float
 
-    :param X: Data matrix :math:`\\mathbf{X}`
+    :param X: Data matrix :math:`\mathbf{X}`
     :type X: array of shape (n x m)
 
     :param Y: array to include in biased selection when mixing < 1
@@ -68,7 +68,7 @@ def pcovr_covariance(mixing, X, Y, rcond=1e-12, return_isqrt=False):
 
 
 def pcovr_kernel(mixing, X, Y):
-   r """
+    r"""
     Creates the PCovR modified kernel distances
 
     .. math::
@@ -77,10 +77,10 @@ def pcovr_kernel(mixing, X, Y):
         (1 - \alpha) \mathbf{\hat{Y}}\mathbf{\hat{Y}}^T
 
     :param mixing: mixing parameter,
-                   as described in PCovR as :math:`{\\alpha}`, defaults to 1
+                   as described in PCovR as :math:`{\alpha}`, defaults to 1
     :type mixing: float
 
-    :param X: Data matrix :math:`\\mathbf{X}`
+    :param X: Data matrix :math:`\mathbf{X}`
     :type X: array of shape (n x m)
 
     :param Y: array to include in biased selection when mixing < 1
@@ -98,7 +98,7 @@ def pcovr_kernel(mixing, X, Y):
 
 
 class PCovR(_BasePCA, LinearModel):
-    """
+    r"""
     Performs Principal Covariates Regression, as described in `[S. de Jong and
     H. A. L. Kiers, 1992] <https://doi.org/10.1016/0169-7439(92)80100-I>`_,
     implemented according to the notations and strategies covered in
@@ -108,7 +108,7 @@ class PCovR(_BasePCA, LinearModel):
     Parameters
     ----------
     mixing: float, defaults to 1
-        mixing parameter, as described in PCovR as :math:`{\\alpha}`
+        mixing parameter, as described in PCovR as :math:`{\alpha}`
 
     n_components : int, float or str, default=None
         Number of components to keep.
@@ -131,13 +131,13 @@ class PCovR(_BasePCA, LinearModel):
 
     lr_args: dictionary, default = `{'alpha':1e-6, 'fit_intercept':False, 'tol':1e-12}`
              arguments to pass to the Ridge Regression instance
-             in estimating :math:`{\\mathbf{\\hat{Y}}}`
+             in estimating :math:`{\mathbf{\hat{Y}}}`
 
     Attributes
     ----------
 
     mixing_: float, defaults to 1
-        mixing parameter, as described in PCovR as :math:`{\\alpha}`
+        mixing parameter, as described in PCovR as :math:`{\alpha}`
 
     regularization_ : float, default=1E-6
             Regularization parameter to use in all regression operations.
@@ -160,22 +160,22 @@ class PCovR(_BasePCA, LinearModel):
         if n_components is None.
 
     pxt_ : ndarray of size :math:`({n_{samples}, n_{components}})`
-           the projector, or weights, from the input space :math:`\\mathbf{X}`
-           to the latent-space projection :math:`\\mathbf{T}`
+           the projector, or weights, from the input space :math:`\mathbf{X}`
+           to the latent-space projection :math:`\mathbf{T}`
 
     pty_ : ndarray of size :math:`({n_{components}, n_{properties}})`
           the projector, or weights, from the latent-space projection
-          :math:`\\mathbf{T}` to the properties :math:`\\mathbf{Y}`
+          :math:`\mathbf{T}` to the properties :math:`\mathbf{Y}`
 
     pxy_ : ndarray of size :math:`({n_{samples}, n_{properties}})`
-           the projector, or weights, from the input space :math:`\\mathbf{X}`
-           to the properties :math:`\\mathbf{Y}`
+           the projector, or weights, from the input space :math:`\mathbf{X}`
+           to the properties :math:`\mathbf{Y}`
 
     explained_variance_ : ndarray of shape (n_components,)
         The amount of variance explained by each of the selected components.
 
         Equal to n_components largest eigenvalues
-        of the PCovR-modified covariance matrix of :math:`\\mathbf{X}`.
+        of the PCovR-modified covariance matrix of :math:`\mathbf{X}`.
 
     singular_values_ : ndarray of shape (n_components,)
         The singular values corresponding to each of the selected components.
@@ -241,7 +241,7 @@ class PCovR(_BasePCA, LinearModel):
         )
 
     def fit(self, X, Y, Yhat=None, W=None):
-        """
+        r"""
 
         Fit the model with X and Y. Depending on the dimensions of X,
         calls either `_fit_feature_space` or `_fit_structure_space`
@@ -252,18 +252,18 @@ class PCovR(_BasePCA, LinearModel):
             Training data, where n_samples is the number of samples and
             n_features is the number of features.
 
-            It is suggested that :math:`\\mathbf{X}` be centered by its column-
+            It is suggested that :math:`\mathbf{X}` be centered by its column-
             means and scaled. If features are related, the matrix should be scaled
-            to have unit variance, otherwise :math:`\\mathbf{X}` should be
+            to have unit variance, otherwise :math:`\mathbf{X}` should be
             scaled so that each feature has a variance of 1 / n_features.
 
         Y : array-like, shape (n_samples, n_properties)
             Training data, where n_samples is the number of samples and
             n_properties is the number of properties
 
-            It is suggested that :math:`\\mathbf{X}` be centered by its column-
+            It is suggested that :math:`\mathbf{X}` be centered by its column-
             means and scaled. If features are related, the matrix should be scaled
-            to have unit variance, otherwise :math:`\\mathbf{Y}` should be
+            to have unit variance, otherwise :math:`\mathbf{Y}` should be
             scaled so that each feature has a variance of 1 / n_features.
 
         Yhat : array-like, shape (n_samples, n_properties), optional
@@ -319,37 +319,37 @@ class PCovR(_BasePCA, LinearModel):
         return self
 
     def _fit_feature_space(self, X, Yhat, W=None):
-        """
+        r"""
         In feature-space PCovR, the projectors are determined by:
 
         .. math::
 
-            \\mathbf{\\tilde{C}} = \\alpha \\mathbf{X}^T \\mathbf{X} +
-            (1 - \\alpha) \\left(\\left(\\mathbf{X}^T
-            \\mathbf{X}\\right)^{-\\frac{1}{2}} \\mathbf{X}^T
-            \\mathbf{\\hat{Y}}\\mathbf{\\hat{Y}}^T \\mathbf{X} \\left(\\mathbf{X}^T
-            \\mathbf{X}\\right)^{-\\frac{1}{2}}\\right)
+            \mathbf{\tilde{C}} = \alpha \mathbf{X}^T \mathbf{X} +
+            (1 - \alpha) \left(\left(\mathbf{X}^T
+            \mathbf{X}\right)^{-\frac{1}{2}} \mathbf{X}^T
+            \mathbf{\hat{Y}}\mathbf{\hat{Y}}^T \mathbf{X} \left(\mathbf{X}^T
+            \mathbf{X}\right)^{-\frac{1}{2}}\right)
 
         where
 
         .. math::
 
-            \\mathbf{P}_{XT} = (\\mathbf{X}^T \\mathbf{X})^{-\\frac{1}{2}}
-                                \\mathbf{U}_\\mathbf{\\tilde{C}}^T
-                                \\mathbf{\\Lambda}_\\mathbf{\\tilde{C}}^{\\frac{1}{2}}
+            \mathbf{P}_{XT} = (\mathbf{X}^T \mathbf{X})^{-\frac{1}{2}}
+                                \mathbf{U}_\mathbf{\tilde{C}}^T
+                                \mathbf{\Lambda}_\mathbf{\tilde{C}}^{\frac{1}{2}}
 
         .. math::
 
-            \\mathbf{P}_{TX} = \\mathbf{\\Lambda}_\\mathbf{\\tilde{C}}^{-\\frac{1}{2}}
-                                \\mathbf{U}_\\mathbf{\\tilde{C}}^T
-                                (\\mathbf{X}^T \\mathbf{X})^{\\frac{1}{2}}
+            \mathbf{P}_{TX} = \mathbf{\Lambda}_\mathbf{\tilde{C}}^{-\frac{1}{2}}
+                                \mathbf{U}_\mathbf{\tilde{C}}^T
+                                (\mathbf{X}^T \mathbf{X})^{\frac{1}{2}}
 
         .. math::
 
-            \\mathbf{P}_{TY} = \\mathbf{\\Lambda}_\\mathbf{\\tilde{C}}^{-\\frac{1}{2}}
-                               \\mathbf{U}_\\mathbf{\\tilde{C}}^T (\\mathbf{X}^T
-                               \\mathbf{X})^{-\\frac{1}{2}} \\mathbf{X}^T
-                               \\mathbf{Y}
+            \mathbf{P}_{TY} = \mathbf{\Lambda}_\mathbf{\tilde{C}}^{-\frac{1}{2}}
+                               \mathbf{U}_\mathbf{\tilde{C}}^T (\mathbf{X}^T
+                               \mathbf{X})^{-\frac{1}{2}} \mathbf{X}^T
+                               \mathbf{Y}
 
         """
 
@@ -380,32 +380,32 @@ class PCovR(_BasePCA, LinearModel):
         self.pty_ = np.linalg.multi_dot([S_inv, U.T, iCsqrt, X.T, Yhat])
 
     def _fit_structure_space(self, X, Yhat, W):
-        """
+        r"""
         In sample-space PCovR, the projectors are determined by:
 
         .. math::
 
-            \\mathbf{\\tilde{K}} = \\alpha \\mathbf{X} \\mathbf{X}^T +
-            (1 - \\alpha) \\mathbf{\\hat{Y}}\\mathbf{\\hat{Y}}^T
+            \mathbf{\tilde{K}} = \alpha \mathbf{X} \mathbf{X}^T +
+            (1 - \alpha) \mathbf{\hat{Y}}\mathbf{\hat{Y}}^T
 
         where
 
         .. math::
 
-            \\mathbf{P}_{XT} = \\left(\\alpha \\mathbf{X}^T + (1 - \\alpha)
-                               \\mathbf{W} \\mathbf{\\hat{Y}}^T\\right)
-                               \\mathbf{U}_\\mathbf{\\tilde{K}}
-                               \\mathbf{\\Lambda}_\\mathbf{\\tilde{K}}^{-\\frac{1}{2}}
+            \mathbf{P}_{XT} = \left(\alpha \mathbf{X}^T + (1 - \alpha)
+                               \mathbf{W} \mathbf{\hat{Y}}^T\right)
+                               \mathbf{U}_\mathbf{\tilde{K}}
+                               \mathbf{\Lambda}_\mathbf{\tilde{K}}^{-\frac{1}{2}}
 
         .. math::
 
-            \\mathbf{P}_{TX} = \\mathbf{\\Lambda}_\\mathbf{\\tilde{K}}^{-\\frac{1}{2}}
-                                \\mathbf{U}_\\mathbf{\\tilde{K}}^T \\mathbf{X}
+            \mathbf{P}_{TX} = \mathbf{\Lambda}_\mathbf{\tilde{K}}^{-\frac{1}{2}}
+                                \mathbf{U}_\mathbf{\tilde{K}}^T \mathbf{X}
 
         .. math::
 
-            \\mathbf{P}_{TY} = \\mathbf{\\Lambda}_\\mathbf{\\tilde{K}}^{-\\frac{1}{2}}
-                               \\mathbf{U}_\\mathbf{\\tilde{K}}^T \\mathbf{Y}
+            \mathbf{P}_{TY} = \mathbf{\Lambda}_\mathbf{\tilde{K}}^{-\frac{1}{2}}
+                               \mathbf{U}_\mathbf{\tilde{K}}^T \mathbf{Y}
 
         """
 
@@ -429,12 +429,12 @@ class PCovR(_BasePCA, LinearModel):
         self.ptx_ = T.T @ X
 
     def inverse_transform(self, T):
-        """Transform data back to its original space.
+        r"""Transform data back to its original space.
 
         .. math::
 
-            \\mathbf{\\hat{X}} = \\mathbf{T} \\mathbf{P}_{TX}
-                              = \\mathbf{X} \\mathbf{P}_{XT} \\mathbf{P}_{TX}
+            \mathbf{\hat{X}} = \mathbf{T} \mathbf{P}_{TX}
+                              = \mathbf{X} \mathbf{P}_{XT} \mathbf{P}_{TX}
 
 
         Parameters
@@ -485,18 +485,18 @@ class PCovR(_BasePCA, LinearModel):
         return super().transform(X)
 
     def score(self, X, Y, T=None):
-        """Return the normalized, squared reconstruction error for X and Y,
+        r"""Return the normalized, squared reconstruction error for X and Y,
         defined as:
 
         .. math::
 
-            \\ell_{X} = \\frac{\\lVert \\mathbf{X} - \\mathbf{T}\\mathbf{P}_{TX} \\rVert ^ 2}{\\lVert \\mathbf{X}\\rVert ^ 2}
+            \ell_{X} = \frac{\lVert \mathbf{X} - \mathbf{T}\mathbf{P}_{TX} \rVert ^ 2}{\lVert \mathbf{X}\rVert ^ 2}
 
         and
 
         .. math::
 
-            \\ell_{Y} = \\frac{\\lVert \\mathbf{Y} - \\mathbf{T}\\mathbf{P}_{TY} \\rVert ^ 2}{\\lVert \\mathbf{Y}\\rVert ^ 2}
+            \ell_{Y} = \frac{\lVert \mathbf{Y} - \mathbf{T}\mathbf{P}_{TY} \rVert ^ 2}{\lVert \mathbf{Y}\rVert ^ 2}
 
 
         Parameters
