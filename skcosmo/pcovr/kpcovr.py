@@ -208,7 +208,7 @@ class KPCovR(_BasePCA, LinearModel):
 
         P = (self.mixing_ * np.eye(K.shape[0])) + (1.0 - self.mixing_) * (W @ Yhat.T)
 
-        v_inv = np.linalg.pinv(np.diagflat(v))
+        v_inv = np.diagflat(1.0 / v)
 
         self.pkt_ = P @ U @ np.sqrt(v_inv)
 
