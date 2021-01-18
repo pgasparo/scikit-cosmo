@@ -157,7 +157,7 @@ class KernelTests(KPCovRBaseTest):
 
         # computing the loss in K similar to that in kpcovr
         K = model._get_kernel(self.X, model.X_fit_)
-        k_ref = t_ref @ np.linalg.pinv(t_ref.T @ t_ref, rcond=1e-8) @ t_ref.T @ K
+        k_ref = t_ref @ np.linalg.lstsq(t_ref, K, rcond=1e-8)[0]
         lk_ref = np.linalg.norm(K - k_ref) ** 2.0 / np.linalg.norm(K) ** 2.0
 
         rounding = 3

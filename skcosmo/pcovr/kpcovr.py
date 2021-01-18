@@ -202,19 +202,19 @@ class KPCovR(_BasePCA, LinearModel):
         K = self._centerer.fit_transform(K)
         K_tilde = pcovr_kernel(mixing=self.mixing_, X=K, Y=Yhat, kernel="precomputed")
 
-        v, U = eig_solver(
-            K_tilde, tol=self.tol, n_components=self.n_components
-        )
+        v, U = eig_solver(K_tilde, tol=self.tol, n_components=self.n_components)
 
         P = (self.mixing_ * np.eye(K.shape[0])) + (1.0 - self.mixing_) * (W @ Yhat.T)
 
-        v_inv = np.linalg.pinv(np.diagflat(v))
+        v_inv = np.diagflat(1.0 / v)
 
         self.pkt_ = P @ U @ np.sqrt(v_inv)
 
         T = K @ self.pkt_
 
-        self.pt__ = np.linalg.lstsq(T, np.eye(T.shape[0]), rcond=self.regularization_)[0]
+        self.pt__ = np.linalg.lstsq(T, np.eye(T.shape[0]), rcond=self.regularization_)[
+            0
+        ]
 
     def fit(self, X, Y, Yhat=None, W=None):
         """
@@ -264,7 +264,9 @@ class KPCovR(_BasePCA, LinearModel):
 
         if W is None:
             if Yhat is None:
-                W = np.linalg.lstsq(K, Y, rcond=self.regularization_)[0]
+                W = (np.linalg.lstsq(K, Y, rcond=self.regularization_)[0]).reshape(
+                    X.shape[0], -1
+                )
             else:
                 W = np.linalg.lstsq(K, Yhat, rcond=self.regularization_)[0]
 
