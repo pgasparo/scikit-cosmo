@@ -264,7 +264,7 @@ class KPCovR(_BasePCA, LinearModel):
 
         if W is None:
             if Yhat is None:
-                W = (np.linalg.pinv(K, rcond=self.regularization_) @ Y).reshape(
+                W = (np.linalg.lstsq(K, Y, rcond=self.regularization_)[0]).reshape(
                     X.shape[0], -1
                 )
             else:
