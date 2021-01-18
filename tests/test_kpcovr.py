@@ -110,14 +110,18 @@ class KernelTests(KPCovRBaseTest):
     def test_kernel_types(self):
         """
         This test checks that KPCovR can handle all kernels passable to
-        sklearn kernel classes
+        sklearn kernel classes, including callable kernels
         """
+
+        def _linear_kernel(X, Y):
+            return X @ Y.T
+
         kernel_params = {
             "poly": {"degree": 2},
             "rbf": {"gamma": 3.0},
             "sigmoid": {"gamma": 3.0, "coef0": 0.5},
         }
-        for kernel in ["linear", "poly", "rbf", "sigmoid", "cosine"]:
+        for kernel in ["linear", "poly", "rbf", "sigmoid", "cosine", _linear_kernel]:
             with self.subTest(kernel=kernel):
                 model = KPCovR(
                     mixing=0.5,
